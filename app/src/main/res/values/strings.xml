@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">CoroutineConversion</string>
+    <string name="button_reveal_text">Reveal!</string>
+    <string name="cake_image_description">A celebration cheesecake</string>
 </resources>

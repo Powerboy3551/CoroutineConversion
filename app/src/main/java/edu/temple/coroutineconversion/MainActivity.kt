@@ -1,22 +1,20 @@
 package edu.temple.coroutineconversion
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import androidx.appcompat.app.AppCompatActivity
 import android.widget.Button
 import android.widget.ImageView
+import kotlinx.coroutines.*
+import kotlin.coroutines.CoroutineContext
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), CoroutineScope {
 
-    //TODO (Refactor to replace Thread code with coroutines)
+    private lateinit var cakeImageView: ImageView
 
-    lateinit var cakeImageView: ImageView
+    private lateinit var job: Job
 
-    val handler = Handler(Looper.getMainLooper(), Handler.Callback {
-        cakeImageView.alpha = it.what / 100f
-        true
-    })
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + job
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,13 +22,21 @@ class MainActivity : AppCompatActivity() {
 
         cakeImageView = findViewById(R.id.imageView)
 
-        findViewById<Button>(R.id.revealButton).setOnClickListener{
-            Thread{
+        job = Job()
+
+        findViewById<Button>(R.id.revealButton).setOnClickListener {
+            launch {
                 repeat(100) {
-                    handler.sendEmptyMessage(it)
-                    Thread.sleep(40)
+                    val alpha = it / 100f
+                    cakeImageView.alpha = alpha
+                    delay(40)
                 }
-            }.start()
+            }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        job.cancel()
     }
 }
